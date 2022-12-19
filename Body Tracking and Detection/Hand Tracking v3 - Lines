@@ -9,7 +9,7 @@ cap = cv2.VideoCapture(0)
 wb_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 wb_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-pace = 2
+pace = 0.5
 
 dw_img = np.zeros((int(wb_h/pace),int(wb_w/pace),3), np.uint8)
 
@@ -23,8 +23,6 @@ pTime = 0
 cTime = 0
 
 activate = 0
-
-
 
 prv_cx=0
 prv_cy=0
@@ -48,10 +46,9 @@ while True:
     
      
 				if id == 8 and activate==1:
-					cv2.line(dw_img,(prv_cx//pace,prv_cy//pace),(cx//pace,cy//pace),color=(random.randint(1,255),random.randint(1,255),random.randint(1,255)),thickness=2)
-					prv_cx=cx
-					prv_cy=cy
-                         
+						cv2.line(dw_img,(int(prv_cx//pace),int(prv_cy//pace)),(int(cx//pace),int(cy//pace)),color=(random.randint(1,255),random.randint(1,255),random.randint(1,255)),thickness=2)
+						prv_cx=cx
+						qqqqqqqprv_cy=cy
 			
 			mpDraw.draw_landmarks(img, handLms, mpHands.HAND_CONNECTIONS)
 			

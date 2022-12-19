@@ -1,0 +1,93 @@
+#################################################################################################
+# Drawing with MediaPipe																		#
+# by - Luis A. Urso																				#
+# Version 1.0																					#
+#################################################################################################
+
+
+import cv2
+import mediapipe as mp 
+import time
+import numpy as np
+import random
+
+cap = cv2.VideoCapture(0)
+
+wb_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+wb_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+# Sets the drawing screen output resolution ration based on the 
+# Input windows resoluiton 
+
+pace = 0.5
+
+dw_img = np.zeros((int(wb_h/pace),int(wb_w/pace),3), np.uint8)
+
+
+mpHands = mp.solutions.hands
+hands = mpHands.Hands()
+mpDraw = mp.solutions.drawing_utils
+
+pTime = 0
+cTime = 0
+
+activate = 0
+
+prv_cx=0
+prv_cy=0
+
+while True:
+	success, img = cap.read()
+	imgRBG = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+	results = hands.process(imgRBG)
+	print(results.multi_hand_landmarks)
+
+	if results.multi_hand_landmarks:
+		for handLms in results.multi_hand_landmarks:
+			for id, lm in enumerate(handLms.landmark):
+				# print(id,lm)
+				h, w, c = img.shape
+				cx, cy = (int(lm.x * w), int(lm.y * h))
+				print(id, cx, cy)
+    
+				if id == 8:
+					cv2.circle(img, (cx,cy), 15, (130,50,205), cv2.FILLED)
+    
+				if id == 8:
+					prv_cx=cx
+					prv_cy=cy
+					if activate==1:
+						## cv2.line(dw_img,(int(prv_cx//pace),int(prv_cy//pace)),(int(cx//pace),int(cy//pace)),color=(random.randint(1,255),random.randint(1,255),random.randint(1,255)),thickness=4)
+						cv2.circle(dw_img, (int(cx//pace),int(cy//pace)), 15, (random.randint(0,255),random.randint(0,255),random.randint(0,255)), cv2.FILLED)   
+			
+			mpDraw.draw_landmarks(img, handLms, mpHands.HAND_CONNECTIONS)
+			
+
+
+	cTime = time.time()
+	fps = 1/(cTime-pTime)
+	pTime = cTime
+
+	cv2.putText(img,str(int(fps)),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),3)
+    
+	if activate==1:
+		cv2.putText(img,"Draw",(10,120),cv2.FONT_HERSHEY_PLAIN,3,(180,50,120),3)
+      
+	cv2.imshow("Hand Track",cv2.flip(img, 1))
+	cv2.imshow('Drawing',cv2.flip(dw_img,1))
+    
+	if cv2.waitKey(1) & 0xFF == ord('t'):
+		if activate==1:
+			activate=0
+		else:
+			activate=1
+			if id == 8:
+				prv_cx=cx
+				prv_cy=cy
+    
+	if cv2.waitKey(1) & 0xFF == ord('q'):
+		break
+
+	if cv2.waitKey(1) & 0xFF == ord('c'):
+		dw_img = np.zeros((int(wb_h/pace),int(wb_w/pace),3), np.uint8)
+  
