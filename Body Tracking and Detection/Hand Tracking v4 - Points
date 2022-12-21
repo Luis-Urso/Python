@@ -50,10 +50,10 @@ while True:
 				cx, cy = (int(lm.x * w), int(lm.y * h))
 				print(id, cx, cy)
     
-				if id == 8:
+				if id == 12:
 					cv2.circle(img, (cx,cy), 15, (130,50,205), cv2.FILLED)
     
-				if id == 8:
+				if id == 12:
 					prv_cx=cx
 					prv_cy=cy
 					if activate==1:
@@ -71,7 +71,7 @@ while True:
 	cv2.putText(img,str(int(fps)),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),3)
     
 	if activate==1:
-		cv2.putText(img,"Draw",(10,120),cv2.FONT_HERSHEY_PLAIN,3,(180,50,120),3)
+		 cv2.putText(img,"Draw",(10,120),cv2.FONT_HERSHEY_PLAIN,3,(180,50,120),3)
       
 	cv2.imshow("Hand Track",cv2.flip(img, 1))
 	cv2.imshow('Drawing',cv2.flip(dw_img,1))
