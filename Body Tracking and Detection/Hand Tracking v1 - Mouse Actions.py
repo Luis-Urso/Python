@@ -17,13 +17,14 @@ pTime = 0
 cTime = 0
 
 activate = 0
-
+cx = 0
+cy = 0
 
 while True:
 	success, img = cap.read()
 	imgRBG = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 	results = hands.process(imgRBG)
-	print(results.multi_hand_landmarks)
+	#print(results.multi_hand_landmarks)
 
 	if results.multi_hand_landmarks:
 		for handLms in results.multi_hand_landmarks:
@@ -31,10 +32,11 @@ while True:
 				# print(id,lm)
 				h, w, c = img.shape
 				cx, cy = (int(lm.x * w), int(lm.y * h))
-				print(id, cx, cy)
+				# print(id, cx, cy)
 				if id == 8:
 					cv2.circle(img, (cx,cy), 15, (255,0,255), cv2.FILLED)
-					gui.moveTo(cx*-1,cy)
+					gui.moveTo(cx,cy)
+					print(cx)
 					
      
 				if id == 12 and activate==1:
@@ -45,13 +47,12 @@ while True:
 			
 			mpDraw.draw_landmarks(img, handLms, mpHands.HAND_CONNECTIONS)
 			
-
-
 	cTime = time.time()
 	fps = 1/(cTime-pTime)
 	pTime = cTime
 
-	cv2.putText(img,str(int(fps)),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),3)
+	
+	cv2.putText(img,str(cx),(10,70),cv2.FONT_HERSHEY_PLAIN,3,(255,0,255),3)
 
 	cv2.imshow("Image",cv2.flip(img, 1))
     

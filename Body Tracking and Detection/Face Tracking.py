@@ -45,15 +45,30 @@ with mp_face_mesh.FaceMesh(
             landmark_drawing_spec=None,
             connection_drawing_spec=mp_drawing_styles
             .get_default_face_mesh_contours_style())
-        mp_drawing.draw_landmarks(
+        iris_result=mp_drawing.draw_landmarks(
             image=image,
             landmark_list=face_landmarks,
             connections=mp_face_mesh.FACEMESH_IRISES,
             landmark_drawing_spec=None,
             connection_drawing_spec=mp_drawing_styles
             .get_default_face_mesh_iris_connections_style())
-        
-        
+      
+        #print(iris_result)
+
+        for id, lm in enumerate(face_landmarks.landmark):
+          
+          h, w, c = image.shape
+          cx, cy = (int(lm.x * w), int(lm.y * h)) 
+          cz = (int(lm.z))
+          
+          print(id,lm)
+          
+          if id==477:
+            cv2.circle(image, (cx,cy), 15, (255,0,255), cv2.FILLED) 
+          if id==238:
+            cv2.circle(image, (cx,cy), 15, (255,150,255), cv2.FILLED) 
+            
+      
     # Flip the image horizontally for a selfie-view display.
     cv2.imshow('MediaPipe Face Mesh', cv2.flip(image, 1))
     if cv2.waitKey(5) & 0xFF == 27:
