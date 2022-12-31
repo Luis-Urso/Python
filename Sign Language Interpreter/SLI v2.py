@@ -31,12 +31,18 @@ wb_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
 pace = 1
 
-# Moviment Analysis Threshold Variables
+# Moviment Analysis Threshold Variables - Filter 1 - Average Methof
 
 th_global = 10
 th_x = th_global + 0
 th_y = (th_x*(wb_w/wb_h)) + 0
 th_z = th_x + 0
+
+# Moviment Analysis Threshold Variables - Filter 2 - Pearson Correl
+
+th_corr_x = 0.97
+th_corr_y = 0.97
+th_corr_z = 0.97
 
 # Variables to calculate Frame Rate
 
@@ -61,7 +67,7 @@ prv_cz=np.zeros(21,dtype=int)
 
 # Weight Movement Vector
 
-w_movement = [1,1,1,1,15,1,1,1,15,1,1,1,15,1,1,1,15,1,1,1,15]
+w_movement = [1,1,1,1,17,1,1,1,17,1,1,1,15,1,1,1,15,1,1,1,15]
 
 # Other Control Variables 
 
@@ -107,8 +113,8 @@ while True:
 
 					if (mean_cur_cx>(mean_prv_cx+th_x)) or (mean_cur_cx<(mean_prv_cx-th_x)) or (mean_cur_cy>(mean_prv_cy+th_y)) or (mean_cur_cy<(mean_prv_cy-th_y)):
          
-						correl_cx=np.corrcoef(cur_cx,prv_cx)
-						correl_cy=np.corrcoef(cur_cy,prv_cy)
+						correl_cx=np.corrcoef(cur_cx,prv_cx+th_x)
+						correl_cy=np.corrcoef(cur_cy,prv_cy+th_y)
       
 						prv_cx=cur_cx
 						prv_cy=cur_cy
@@ -120,13 +126,13 @@ while True:
 						print("Thresholds (X,Y,Z):",th_x,th_y,th_z)
 						print("X Change Average Vector P->N = ", mean_prv_cx,mean_cur_cx)
 						print("Y Change Average Vector P->N= ", mean_prv_cy,mean_cur_cy)
-						print("Correl X = ", correl_cx)
-						print("Correl Y = ",correl_cy)
+						print("Correl X = ", correl_cx[0,1])
+						print("Correl Y = ",correl_cy[0,1])
 						
 					
-      
-						f_changed = True
-						print("*** Changed Position ***")
+						if correl_cx[0,1]<=th_corr_x  or correl_cy[0,1]<=th_corr_x:
+							f_changed = True
+							print("*** Changed Position ***")
 
      
 			mpDraw.draw_landmarks(img,handLms,mpHands.HAND_CONNECTIONS,mp_drawing_styles.get_default_hand_landmarks_style(),mp_drawing_styles.get_default_hand_connections_style())
