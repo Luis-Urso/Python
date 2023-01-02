@@ -18,7 +18,7 @@ import mediapipe as mp
 import time
 import numpy as np
 import random
-import winsound
+
 
 cap = cv2.VideoCapture(0)
 
@@ -91,7 +91,9 @@ while True:
 	if results.multi_hand_landmarks:
 		
 		for handLms in results.multi_hand_landmarks:
-					
+			
+			mpDraw.draw_landmarks(img,handLms,mpHands.HAND_CONNECTIONS,mp_drawing_styles.get_default_hand_landmarks_style(),mp_drawing_styles.get_default_hand_connections_style())		
+	
 			for id, lm in enumerate(handLms.landmark):
 				# print(id,lm)
 				h, w, c = img.shape
@@ -133,9 +135,7 @@ while True:
 						if correl_cx[0,1]<=th_corr_x  or correl_cy[0,1]<=th_corr_x:
 							f_changed = True
 							print("*** Changed Position ***")
-
-     
-			mpDraw.draw_landmarks(img,handLms,mpHands.HAND_CONNECTIONS,mp_drawing_styles.get_default_hand_landmarks_style(),mp_drawing_styles.get_default_hand_connections_style())
+   
     
 				#print(id, cx, cy)
 				

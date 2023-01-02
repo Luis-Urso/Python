@@ -10,7 +10,7 @@ import mediapipe as mp
 import time
 import numpy as np
 import random
-import winsound
+
 
 cap = cv2.VideoCapture(0)
 
