@@ -67,7 +67,7 @@ prv_cz=np.zeros(21,dtype=int)
 
 # Weight Movement Vector
 
-w_movement = [1,1,1,1,17,1,1,1,17,1,1,1,15,1,1,1,15,1,1,1,15]
+w_movement = [1,1,1,1,15,1,1,1,15,1,1,1,15,1,1,1,15,1,1,1,15]
 
 # Other Control Variables 
 
