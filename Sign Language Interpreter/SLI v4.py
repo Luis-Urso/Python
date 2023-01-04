@@ -1,7 +1,7 @@
 
 ################################################################################################################################################
 ## SIGN LANGUAGE INTERPRETER (SLI)
-## Version 3.0 - 01-JAN-2023
+## Version 4.0 - 04-JAN-2023
 ## By Luis A. Urso
 ## LUCA2.AI (R) 
 ##
@@ -15,15 +15,17 @@
 ## - Code improvements
 ## - Correlation Factor adjustment from 0.97 to 0.972
 ##
-## 02-jan-2023
+## 04-jan-2023
 ##
 ## - Result Screen coding
 ## - Funciton implementation (code organization)
 ## - Improve moviments logics + coordinates reset
 ## - Included the hyperparameters for Hands object creation (hands)
+## - Split of Weighted Average parameters by axis
 ## 
 ##
 ## Backlog:
+## - Improve the XVZ Mean and Correl Related Parameters Adjustments
 ## - Implement Z axis resolution (need to define the best conversion factor)
 ## - Implement the Machine Learning Layer - see references at: https://www.kaggle.com/code/yassineghouzam/introduction-to-cnn-keras-0-997-top-6
 ## 
@@ -33,7 +35,7 @@ import cv2
 import mediapipe as mp 
 import time
 import numpy as np
-import random
+
 
 
 def main():
@@ -47,14 +49,14 @@ def main():
 
     # Creates the Response Screen
 
-    resp_zoom = 1.2
+    resp_zoom = 1.8
     
     rsp_img = np.zeros((int(wb_h*resp_zoom),int(wb_w*resp_zoom),3), np.uint8)
     cv2.imshow('Response Screen',rsp_img)
 
     # Moviment Analysis Threshold Variables - Filter 1 - Average Methof
 
-    th_global = 10
+    th_global = 12
     th_x = th_global + 0
     th_y = (th_x*(wb_w/wb_h)) + 0
     th_z = th_x + 0
@@ -88,7 +90,8 @@ def main():
 
     # Weight Movement Vector
 
-    w_movement = [1,1,1,1,17,1,1,1,17,1,1,1,15,1,1,1,15,1,1,1,15]
+    w_mov_avg_x = [1,1,1,1,17,1,1,1,17,1,1,1,15,1,1,1,15,1,1,1,15]
+    w_mov_avg_y = [1,1,1,1,17,1,1,1,20,1,1,1,15,1,1,1,15,1,1,1,15]
 
     # Other Control Variables 
 
@@ -128,19 +131,23 @@ def main():
         
                     if id==20:
 
-                        mean_prv_cx=np.average(prv_cx,axis=0,weights=w_movement)
-                        mean_cur_cx=np.average(cur_cx,axis=0,weights=w_movement)
-                        mean_prv_cy=np.average(prv_cy,axis=0,weights=w_movement)
-                        mean_cur_cy=np.average(cur_cy,axis=0,weights=w_movement)
+                        mean_prv_cx=np.average(prv_cx,axis=0,weights=w_mov_avg_x)
+                        #mean_prv_cx=np.mean(prv_cx)
+                        mean_cur_cx=np.average(cur_cx,axis=0,weights=w_mov_avg_x)
+                        
+                        mean_prv_cy=np.average(prv_cy,axis=0,weights=w_mov_avg_y)
+                        #mean_prv_cy=np.mean(prv_cy)
+                        mean_cur_cy=np.average(cur_cy,axis=0,weights=w_mov_avg_y)
 
                         if (mean_cur_cx>(mean_prv_cx+th_x)) or (mean_cur_cx<(mean_prv_cx-th_x)) or (mean_cur_cy>(mean_prv_cy+th_y)) or (mean_cur_cy<(mean_prv_cy-th_y)):
             
-                            correl_cx=np.corrcoef(cur_cx,prv_cx+th_x)
-                            correl_cy=np.corrcoef(cur_cy,prv_cy+th_y)                           
+                            correl_cx=np.corrcoef(cur_cx,prv_cx)
+                            correl_cy=np.corrcoef(cur_cy,prv_cy)
+                                                  
         
                             print("Thresholds (X,Y,Z):",th_x,th_y,th_z)
-                            print("X Change Average Vector P->N = ", mean_prv_cx,mean_cur_cx)
-                            print("Y Change Average Vector P->N= ", mean_prv_cy,mean_cur_cy)
+                            print("X Change Average Vector P->N , DIFF = ", mean_prv_cx,mean_cur_cx,mean_prv_cx-mean_cur_cx )
+                            print("Y Change Average Vector P->N , DIFF = ", mean_prv_cy,mean_cur_cy,mean_prv_cy-mean_cur_cy)
                             print("Correl X = ", correl_cx[0,1])
                             print("Correl Y = ",correl_cy[0,1])
                             
@@ -151,12 +158,14 @@ def main():
                                 
                                 ## Shows the Hand's Mimic at Response Screen 
                                 
-                                build_resp_screen(rsp_img,cur_cx,cur_cy,resp_zoom)
+                                build_resp_screen(rsp_img,wb_w,wb_h,cur_cx,cur_cy,resp_zoom)
+                              
                                 
-                                prv_cx=cur_cx
-                                prv_cy=cur_cy
-                                cur_cx=np.zeros(21,dtype=int)
-                                cur_cy=np.zeros(21,dtype=int)
+                            prv_cx=cur_cx
+                            prv_cy=cur_cy
+                            
+                            cur_cx=np.zeros(21,dtype=int)
+                            cur_cy=np.zeros(21,dtype=int)
     
         
                     #print(id, cx, cy)
@@ -181,11 +190,9 @@ def main():
             break
         
         
-def build_resp_screen(rsp_img,x,y,resp_zoom):
-    
-    h, w, c = rsp_img.shape
-    
-    rsp_img = np.zeros((int(h*resp_zoom),int(w*resp_zoom),3), np.uint8)
+def build_resp_screen(rsp_img,w_size,h_size,x,y,resp_zoom):
+     
+    rsp_img = np.zeros((int(h_size*resp_zoom),int(w_size*resp_zoom),3), np.uint8)
     
     circle_size=7
     line_tick=2
