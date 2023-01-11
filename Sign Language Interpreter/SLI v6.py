@@ -95,8 +95,8 @@ def main():
     # Create the Record Buffer Metrix and Definitions
     # Matrix Order: buffer_rec = [buffer_Size,21,3] which: Buffer_Size is defined in the bariable below, 21 is the Landmarks, 3 for XYZ
     
-    buffer_size=100
-    buffer_rec = np.zeros([buffer_size,21,3],dtype=np.uint8)
+    buffer_size=300
+    buffer_rec = np.zeros([buffer_size,21,3],dtype=np.uint16)
     buffer_index=0
     
     # Other Control Variables 
@@ -149,16 +149,21 @@ def main():
                                 buffer_rec[buffer_index][lm_index][2]=cur_cz[lm_index]
                             
                         else:
-                            buffer_rec=buffer_rec[1:(buffer_size-1),:,:]
+                            buffer_rec=buffer_rec[1:(buffer_size),:,:]
+                            buffer_rec=np.vstack((buffer_rec,np.zeros((1,)+buffer_rec.shape[1:], dtype=np.uint16)))
+
                             for lm_index in range(0,21):
                                 buffer_rec[buffer_size-1][lm_index][0]=cur_cx[lm_index]
                                 buffer_rec[buffer_size-1][lm_index][1]=cur_cy[lm_index]
-                                buffer_rec[buffer_size-1][lm_index][2]=cur_cz[lm_index]        
+                                buffer_rec[buffer_size-1][lm_index][2]=cur_cz[lm_index]
+                                
+                            print(buffer_rec)    
 
                         if buffer_index<buffer_size:
                             buffer_index+=1
                         else:
                             buffer_index=buffer_size-1
+                    
                         
                         ## Calculate the Weighted Averages - Filter 1
 
