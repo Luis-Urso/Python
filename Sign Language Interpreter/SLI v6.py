@@ -147,15 +147,19 @@ def main():
                                 buffer_rec[buffer_index][lm_index][0]=cur_cx[lm_index]
                                 buffer_rec[buffer_index][lm_index][1]=cur_cy[lm_index]
                                 buffer_rec[buffer_index][lm_index][2]=cur_cz[lm_index]
+                            
                         else:
                             buffer_rec=buffer_rec[1:(buffer_size-1),:,:]
                             for lm_index in range(0,21):
                                 buffer_rec[buffer_size-1][lm_index][0]=cur_cx[lm_index]
                                 buffer_rec[buffer_size-1][lm_index][1]=cur_cy[lm_index]
                                 buffer_rec[buffer_size-1][lm_index][2]=cur_cz[lm_index]        
-                        buffer_index+=1
 
-
+                        if buffer_index<buffer_size:
+                            buffer_index+=1
+                        else:
+                            buffer_index=buffer_size-1
+                        
                         ## Calculate the Weighted Averages - Filter 1
 
                         mean_prv_cx=np.average(prv_cx,axis=0,weights=w_mov_avg_x)
