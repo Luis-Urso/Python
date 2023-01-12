@@ -52,7 +52,7 @@ def main():
 
     # Creates the Response Screen
 
-    resp_zoom = 0.8
+    resp_zoom = 1.4
     
     rsp_img = np.zeros((int(wb_h*resp_zoom),int(wb_w*resp_zoom),3), np.uint8)
     cv2.imshow('Response Screen',rsp_img)
@@ -181,11 +181,11 @@ def main():
                             correl_cx=np.corrcoef(cur_cx,prv_cx)
                             correl_cy=np.corrcoef(cur_cy,prv_cy)
                                                   
-                            #print("Thresholds (X,Y,Z):",th_x,th_y,th_z)
-                            #print("X Change Average Vector P->N , DIFF = ", mean_prv_cx,mean_cur_cx,mean_prv_cx-mean_cur_cx )
-                            #print("Y Change Average Vector P->N , DIFF = ", mean_prv_cy,mean_cur_cy,mean_prv_cy-mean_cur_cy)
-                            #print("Correl X = ", correl_cx[0,1])
-                            #print("Correl Y = ",correl_cy[0,1])
+                            print("Thresholds (X,Y,Z):",th_x,th_y,th_z)
+                            print("X Change Average Vector P->N , DIFF = ", mean_prv_cx,mean_cur_cx,mean_prv_cx-mean_cur_cx )
+                            print("Y Change Average Vector P->N , DIFF = ", mean_prv_cy,mean_cur_cy,mean_prv_cy-mean_cur_cy)
+                            print("Correl X = ", correl_cx[0,1])
+                            print("Correl Y = ",correl_cy[0,1])
                                                                                
                             if correl_cx[0,1]<=th_corr_x  or correl_cy[0,1]<=th_corr_x:
                                 f_changed = True
@@ -193,7 +193,7 @@ def main():
                                 
                                 ## Shows the Hand's Mimic at Response Screen
                                  
-                                # build_resp_screen(rsp_img,wb_w,wb_h,cur_cx,cur_cy,resp_zoom)
+                                build_resp_screen(rsp_img,wb_w,wb_h,cur_cx,cur_cy,resp_zoom)
                                 
                                 ## Analyze the Movements for Neural Network Training or Interpretation
                                 
@@ -331,7 +331,7 @@ def analyze_movements(rsp_img,w_size,h_size,buffer_rec,buffer_index,resp_zoom):
      
     rsp_img = np.zeros((int(h_size*resp_zoom),int(w_size*resp_zoom),3), np.uint8)
     
-    circle_size=7
+    circle_size=5
     line_tick=2
     
     x=np.zeros(21,dtype=int)
@@ -430,7 +430,7 @@ def analyze_movements(rsp_img,w_size,h_size,buffer_rec,buffer_index,resp_zoom):
         cv2.line(rsp_img,(int(x[19]*resp_zoom),int(y[19]*resp_zoom)),(int(x[20]*resp_zoom),int(y[20]*resp_zoom)),color=(230,88,32),thickness=line_tick) 
         
     
-        cv2.imshow("Response Screen",cv2.flip(rsp_img, 1))
+        cv2.imshow("Analyer Response",cv2.flip(rsp_img, 1))
         
 if __name__ == '__main__':
     main()
