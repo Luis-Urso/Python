@@ -230,7 +230,9 @@ def main():
         
         if key:
             if key & 0xFF == ord('q'):
-                quit()
+                cap.release()
+                cv2.destroyAllWindows()
+                break
             if key & 0xFF == ord('t'):
                 label_id=input('What is the Label ID:')
                 class_name=input('What is the class name:')
