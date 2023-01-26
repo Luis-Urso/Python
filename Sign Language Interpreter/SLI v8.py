@@ -1,7 +1,7 @@
 
 ################################################################################################################################################
 ## SIGN LANGUAGE INTERPRETER (SLI)
-## Version 6.0 - 11-JAN-2023
+## Version 8.0 - 26-JAN-2023
 ## By Luis A. Urso
 ## LUCA2.AI (R) 
 ##
@@ -23,10 +23,15 @@
 ## - Included the hyperparameters for Hands object creation (hands)
 ## - Split of Weighted Average parameters by axis
 ## 
-## 11 - JAN-2023
+## 11-JAN-2023
 ##
 ## - Implementation of Recording Moviments Buffer to be used by Neural Network
 ## - Numpy Warning Suppression activated
+##
+## 26-JAN-2023
+## - Change of image mirroging (image invetion on CV2)
+## - Inclusion of mode selection + get_mode function
+##
 ##
 ## Backlog:
 ## - Implement Z axis resolution (need to define the best conversion factor)
@@ -57,6 +62,10 @@ def main():
     rsp_img = np.zeros((int(wb_h*resp_zoom),int(wb_w*resp_zoom),3), np.uint8)
     cv2.imshow('Response Screen',rsp_img)
     
+    # Analyze Function Activation Flags
+    
+    analyze_flag=False
+    
     # Supress Numpy Warning - normally in Pearson Correlation when dividing by ZERO or NaN
     
     np.seterr(invalid='ignore')
@@ -81,6 +90,7 @@ def main():
     # Toggle - to activate funcitons using keyboard 
 
     activate = 0
+    mode="Interpreting"
 
     # Variables to measure Previous and Current Movements 
 
@@ -120,6 +130,7 @@ def main():
 
     while True:
         success, cap_img = cap.read()
+        cap_img = cv2.flip(cap_img, 1)
         cap_imgRBG = cv2.cvtColor(cap_img, cv2.COLOR_BGR2RGB)
         results = hands.process(cap_imgRBG)
         #print(results.multi_hand_landmarks)
@@ -197,12 +208,14 @@ def main():
                                 
                                 ## Analyze the Movements for Neural Network Training or Interpretation
                                 
-                                analyze_movements(rsp_img,wb_w,wb_h,buffer_rec,buffer_index,resp_zoom)
+                                if analyze_flag:
+                                    
+                                    analyze_movements(rsp_img,wb_w,wb_h,buffer_rec,buffer_index,resp_zoom)
                                 
-                                buffer_begin=buffer_rec[buffer_index-2:buffer_index-1,:,:]
-                                buffer_rec = np.zeros([buffer_size,21,3],dtype=np.uint16)
-                                buffer_rec[0,:,:]=buffer_begin[0,:,:]
-                                buffer_index=1    
+                                    buffer_begin=buffer_rec[buffer_index-2:buffer_index-1,:,:]
+                                    buffer_rec = np.zeros([buffer_size,21,3],dtype=np.uint16)
+                                    buffer_rec[0,:,:]=buffer_begin[0,:,:]
+                                    buffer_index=1    
                                
                             prv_cx=cur_cx                            
                             prv_cy=cur_cy
@@ -221,16 +234,21 @@ def main():
         pTime = cTime
     
         if f_changed:
-            cv2.putText(cap_img,"*",(10,100),cv2.FONT_HERSHEY_PLAIN,10,(234,242,7),3)
+            cv2.putText(cap_img,">*<",(10,50),cv2.FONT_HERSHEY_PLAIN,3,(234,242,7),3)
             f_changed=False
     
-        cv2.imshow("Capture Screen",cv2.flip(cap_img, 1))
+        cv2.putText(cap_img,'Mode: ' + mode,(10,70),cv2.FONT_HERSHEY_PLAIN,1,(234,242,7),3)
+        cv2.imshow("Capture Screen",cap_img)
         
-    
-    
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        key=cv2.waitKey(10) 
+        
+        if key & 0xFF == ord('t'):
+            mode="Training"
+            
+        if key & 0xFF == ord('q'):
             quit()
-        
+            
+            
         
 def build_resp_screen(rsp_img,w_size,h_size,x,y,resp_zoom):
      
@@ -434,7 +452,5 @@ def analyze_movements(rsp_img,w_size,h_size,buffer_rec,buffer_index,resp_zoom):
         
 if __name__ == '__main__':
     main()
-    
-    
-    
+       
 ### THE END ###
