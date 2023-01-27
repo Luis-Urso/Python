@@ -250,8 +250,8 @@ def main():
         
         if key & 0xFF == ord('t'):
             mode="Training"
-            training_label=1
-            training_class="OK"
+            training_label=2
+            training_class="HEAVY METAL"
             
             build_resp_screen(rsp_img,wb_w,wb_h,cur_cx,cur_cy,resp_zoom,mode,training_label,training_class)
             
@@ -265,7 +265,7 @@ def main():
                                 
             lm_normalized = pre_process_landmark(cur_cx,cur_cy)
             
-            write_csv(1,lm_normalized)
+            write_csv(training_label,lm_normalized)
             
             
         if key & 0xFF == ord('i'):
@@ -279,9 +279,9 @@ def main():
         
         # Frame Rate Calculation 
 
-        cTime = time.time()
-        fps = 1/(cTime-pTime)
-        pTime = cTime
+        # cTime = time.time()
+        # fps = 1/(cTime-pTime)
+        # pTime = cTime
     
         if f_changed:
             cv2.putText(cap_img,">*<"+f_action,(10,50),cv2.FONT_HERSHEY_PLAIN,3,(234,242,7),3)
