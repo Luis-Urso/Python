@@ -1,7 +1,7 @@
 
 ################################################################################################################################################
 ## SIGN LANGUAGE INTERPRETER (SLI)
-## Version 10 - 28-JAN-2023
+## Version 10.0 - 28-JAN-2023 - RELEASE CANDIDATE 
 ## By Luis A. Urso
 ## LUCA2.AI (R) 
 ##
@@ -29,9 +29,14 @@
 ## - Numpy Warning Suppression activated
 ##
 ## 26-JAN-2023
+##
 ## - Change of image mirroging (image invetion on CV2)
 ## - Inclusion of mode selection + get_mode function
 ##
+## 28-JAN-2023
+##
+## - Traning module adjustments
+## - Signals interpretation
 ##
 ## Backlog:
 ## - Implement Z axis resolution (need to define the best conversion factor)
