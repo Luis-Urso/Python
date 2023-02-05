@@ -268,11 +268,11 @@ def main():
                                 correl_cx=np.corrcoef(cur_cx,prv_cx)
                                 correl_cy=np.corrcoef(cur_cy,prv_cy)
                                                     
-                                print("Thresholds (X,Y,Z):",th_x,th_y,th_z)
-                                print("X Change Average Vector P->N , DIFF = ", mean_prv_cx,mean_cur_cx,mean_prv_cx-mean_cur_cx )
-                                print("Y Change Average Vector P->N , DIFF = ", mean_prv_cy,mean_cur_cy,mean_prv_cy-mean_cur_cy)
-                                print("Correl X = ", correl_cx[0,1])
-                                print("Correl Y = ",correl_cy[0,1])
+                                # print("Thresholds (X,Y,Z):",th_x,th_y,th_z)
+                                # print("X Change Average Vector P->N , DIFF = ", mean_prv_cx,mean_cur_cx,mean_prv_cx-mean_cur_cx )
+                                # print("Y Change Average Vector P->N , DIFF = ", mean_prv_cy,mean_cur_cy,mean_prv_cy-mean_cur_cy)
+                                # print("Correl X = ", correl_cx[0,1])
+                                # print("Correl Y = ",correl_cy[0,1])
                                                                                 
                                 if correl_cx[0,1]<=th_corr_x  or correl_cy[0,1]<=th_corr_x:
                                     f_changed = True
@@ -328,7 +328,7 @@ def main():
                     # Write the Class in the LABELS file
                     
                     f_labels_write = open(app_path+'\\model\\labels.csv', 'a')
-                    f_labels_write.write(training_class)
+                    f_labels_write.write(training_class+'\n')
                     f_labels_write.close()
                     
                     
@@ -374,16 +374,16 @@ def main():
         # pTime = cTime
     
         if f_changed:
-            cv2.putText(cap_img,">*<",(10,50),cv2.FONT_HERSHEY_PLAIN,3,(234,242,7),3)
+            cv2.putText(cap_img,">*<",(10,50),cv2.FONT_HERSHEY_PLAIN,3,(234,242,7),2)
             f_changed=False
             
         
         if f_action=='c':
-            cv2.putText(cap_img,"+++",(wb_w-120,50),cv2.FONT_HERSHEY_PLAIN,3,(73,3,252),3)
-            cv2.putText(cap_img,str(t_count),(wb_w-120,80),cv2.FONT_HERSHEY_PLAIN,3,(73,3,252),3)
+            cv2.putText(cap_img,"+++",(wb_w-120,50),cv2.FONT_HERSHEY_PLAIN,3,(73,3,252),2)
+            cv2.putText(cap_img,str(t_count),(wb_w-120,80),cv2.FONT_HERSHEY_PLAIN,3,(73,3,252),2)
             f_action=""
             
-        cv2.putText(cap_img,'Mode: ' + mode,(10,80),cv2.FONT_HERSHEY_SIMPLEX,0.7,(234,242,7),3)
+        cv2.putText(cap_img,'Mode: ' + mode,(10,80),cv2.FONT_HERSHEY_SIMPLEX,0.7,(234,242,7),1)
         cv2.imshow("Capture Screen",cap_img)
                     
 ##
@@ -533,13 +533,17 @@ def build_resp_screen(rsp_img,w_size,h_size,x,y,resp_zoom,mode,training_label,tr
         
         
     if mode=="Interpreting":
+        
+        start_time=time.time()
 
         lm_normalized_xy = pre_process_landmark(x,y)
         label = predict_label(lm_normalized_xy)
         label_index=label
         
         if (label_index>0 and label_index<=len(labels_class)):
-            cv2.putText(rsp_img,labels_class[label_index],(30,100),cv2.FONT_HERSHEY_SIMPLEX,3,(255,255,255),3)
+            predicted_text=labels_class[label_index]
+            cv2.putText(rsp_img,predicted_text,(30,100),cv2.FONT_HERSHEY_SIMPLEX,3,(255,255,255),3)
+            print("Predicted: ",predicted_text," - Inference time: ",(time.time()-start_time))
         else:
             cv2.putText(rsp_img,"Not Identified",(30,75),cv2.FONT_HERSHEY_SIMPLEX,3,(73,3,252),3)
             
