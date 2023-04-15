@@ -1,7 +1,7 @@
 
 ################################################################################################################################################
 ## SIGN LANGUAGE INTERPRETER (SLI)
-## Version 11 - 02-APR-2023
+## Version 11 - 09-APR-2023
 ## By Luis A. Urso
 ## LUCA2.AI (R) 
 ##
@@ -15,12 +15,16 @@
 ## - Change of image mirroring (image invetion on CV2)
 ## - Inclusion of mode selection + get_mode function
 ##
-## 02-APR-2024:
-## - 
+## 09-APR-2023:
+## - Code Review and optimization
 ##
 ## Backlog:
-## - Implement Z axis resolution (need to define the best conversion factor)
+## - Implement Z axis for learning and interpreting model (need to define the best conversion factor)
 ## - Implement historcal movement analysis (Formula: n - (3 x Frame Rate) -> those represent 3 secs)
+##
+## References: 
+## ASL Hand Signs Reference: https://www.youtube.com/watch?v=cGavOVNDj1s
+## 
 ## 
 ################################################################################################################################################
 
@@ -28,16 +32,17 @@ import os
 import sys
 import cv2
 import mediapipe as mp 
+import tensorflow as tf
 import time
 import numpy as np
 import csv
+
 import copy
 import argparse
 import itertools
-import tensorflow as tf
 
 ##
-## Function to get the Script Path 
+## Function to get this Script Path 
 ##
 
 def get_script_path():
@@ -47,14 +52,14 @@ app_path=get_script_path()
 
 ##
 ## Hand Sign Classifier
-## Receives the Normalized Landmarks Vector and Predicts the Label
+## Receives the Normalized and Scaled Landmarks Vector and Predicts the Label
 ##
         
 class predict_label(object):
     def __init__(
         self,
         model_path=app_path+'\\model\\training_classifier.tflite',
-        num_threads=1,
+        num_threads=1
     ):
         self.interpreter = tf.lite.Interpreter(model_path=model_path,
                                                num_threads=num_threads)
@@ -103,7 +108,7 @@ def main():
 
     cap = cv2.VideoCapture(0)
 
-    # Get the WebCam Screen Sizes 
+    # Get the current WebCam Screen Sizes 
 
     wb_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     wb_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -111,12 +116,12 @@ def main():
     # Creates the Response Screen
     # Variable resp_zoom defines the size factor of the response screen.
 
-    resp_zoom = 1.4
+    resp_zoom = 1.4 # Size of the Resp. Screen
     
     rsp_img = np.zeros((int(wb_h*resp_zoom),int(wb_w*resp_zoom),3), np.uint8)
     cv2.imshow('Response Screen',rsp_img)
     
-    # Analyze - Function Activation Flags
+    # Function Activation Flags activation
     # Enable the historical movement analysis to improve the learning of the movements. 
     
     analyze_flag=False
@@ -125,48 +130,45 @@ def main():
     
     np.seterr(invalid='ignore')
 
-    # Moviment Analysis Threshold Variables - Filter 1 - Average Methof
+    # Moviment Analysis Threshold Variables - Filter 1 - Average Method
 
     th_x = 4
     th_y = 4
-    th_z = 4
+    th_z = 4 # reserved for future usage
 
-    # Moviment Analysis Threshold Variables - Filter 2 - Pearson Correl
+    # Moviment Analysis Threshold Variables - Filter 2 - Pearson Correlation
 
     th_corr_x = 0.98
     th_corr_y = 0.98
-    th_corr_z = 0.98
+    th_corr_z = 0.98 # reserved for future usage
     
     # Variables to calculate Frame Rate
 
     pTime = 0
     cTime = 0
 
-    # Toggle - to activate funcitons using keyboard 
+    # Toggle related variables - to activate funcitons using keyboard 
 
-    activate = 0
     mode="Interpreting"
     training_label=0
     training_class=""
 
     # Variables to measure Previous and Current Movements 
 
-    cur_id=np.zeros(21,dtype=int)
     cur_cx=np.zeros(21,dtype=int)
     cur_cy=np.zeros(21,dtype=int)
-    cur_cz=np.zeros(21,dtype=int)
+    cur_cz=np.zeros(21,dtype=int) # Assigned but reserved for future usage
 
-    prv_id=np.zeros(21,dtype=int)
     prv_cx=np.zeros(21,dtype=int)
     prv_cy=np.zeros(21,dtype=int)
-    prv_cz=np.zeros(21,dtype=int)
+    prv_cz=np.zeros(21,dtype=int) # Reserved for future usage
 
-    # Weight Movement Vector
+    # Weight Movement Vector definitions (for Weighted Average Filter Usage)
 
     w_mov_avg_x = [1,1,20,20,1000,1,20,20,1000,1,1,1,15,1,1,1,15,1,1,1,15] 
     w_mov_avg_y = [1,1,20,20,1000,1,20,20,1000,1,1,1,15,1,1,1,15,1,1,1,15]
     
-    # Create the Record Buffer Metrix and Definitions
+    # Recording Buffer Matrix and Definitions
     # Matrix Order: buffer_rec = [buffer_Size,21,3] which: Buffer_Size is defined in the bariable below, 21 is the Landmarks, 3 for XYZ
     
     buffer_size=100
@@ -191,6 +193,7 @@ def main():
         cap_img = cv2.flip(cap_img, 1)
         cap_imgRBG = cv2.cvtColor(cap_img, cv2.COLOR_BGR2RGB)
         results = hands.process(cap_imgRBG)
+        
         #print(results.multi_hand_landmarks)
 
         if results.multi_hand_landmarks:
@@ -204,17 +207,14 @@ def main():
                     h, w, c = cap_img.shape
                     cx, cy = (int(lm.x * w), int(lm.y * h))
                     cz = int(lm.z * w) + 105
-        
-                    #if id==8:
-                    #    print("Screen WH",w,h," XYZ-Coordinates:",cx,cy,cz)
-        
+               
                     cur_cx[id]=cx
                     cur_cy[id]=cy
                     cur_cz[id]=cz
         
                     if id==20:
                         
-                        ## Records the Landmark Buffer for further analizis by
+                        ## Records the Landmark Buffer for further analyzis by
                         ## Neural Network
                         
                         if buffer_index < buffer_size:
@@ -238,7 +238,7 @@ def main():
                                             
                         if mode!="Training":
                         
-                            ## Calculate the Weighted Averages - Filter 1
+                            ## Weighted Averages - Filter 1
 
                             mean_prv_cx=np.average(prv_cx,axis=0,weights=w_mov_avg_x)
                             mean_cur_cx=np.average(cur_cx,axis=0,weights=w_mov_avg_x)                      
@@ -247,24 +247,27 @@ def main():
 
                             if (mean_cur_cx>(mean_prv_cx+th_x)) or (mean_cur_cx<(mean_prv_cx-th_x)) or (mean_cur_cy>(mean_prv_cy+th_y)) or (mean_cur_cy<(mean_prv_cy-th_y)):
                 
-                                ## Calculate the Pearson Correlaton - Filter 2 
+                                ## Pearson Correlaton - Filter 2 
                 
                                 correl_cx=np.corrcoef(cur_cx,prv_cx)
                                 correl_cy=np.corrcoef(cur_cy,prv_cy)
-                                                    
+
+                                ## Debugging lines - uncomment for debug                    
                                 # print("Thresholds (X,Y,Z):",th_x,th_y,th_z)
-                                # print("X Change Average Vector P->N , DIFF = ", mean_prv_cx,mean_cur_cx,mean_prv_cx-mean_cur_cx )
-                                # print("Y Change Average Vector P->N , DIFF = ", mean_prv_cy,mean_cur_cy,mean_prv_cy-mean_cur_cy)
-                                # print("Correl X = ", correl_cx[0,1])
-                                # print("Correl Y = ",correl_cy[0,1])
+                                # print("X Change W. Avg Vector Prv.->Cur. , Diff = ", mean_prv_cx,mean_cur_cx,mean_prv_cx-mean_cur_cx )
+                                # print("Y Change W. Ave Vector Prv.->Cur. , Diff = ", mean_prv_cy,mean_cur_cy,mean_prv_cy-mean_cur_cy)
+                                # print("Correl. X = ", correl_cx[0,1])
+                                # print("Correl. Y = ",correl_cy[0,1])
                                                                                 
-                                if correl_cx[0,1]<=th_corr_x  or correl_cy[0,1]<=th_corr_x:
+                                if correl_cx[0,1]<=th_corr_x  or correl_cy[0,1]<=th_corr_y:
                                     f_changed = True
                                     
                                     print("*** Changed Position ***")
-                                                                
-                                    ## Shows the Hand's Mimic at Response Screen
-                                    
+
+                                    ##                            
+                                    ## Shows the Hand's Mimic at Response Screen with the Symbol Interpretation 
+                                    ##
+
                                     build_resp_screen(rsp_img,wb_w,wb_h,cur_cx,cur_cy,resp_zoom,mode,training_label,training_class)
                                     
                                     ## Analyze the Movements for Neural Network Training or Interpretation
@@ -284,7 +287,10 @@ def main():
                                 cur_cy=np.zeros(21,dtype=int)
                             
         
-        ## Process Actions and Modes
+        ## Modes Selection:
+        ## 't' - for training, and during the trainng "c" to capture the hand's landmarks.
+        ## 'i' - for interpreting
+        ## 'q' - to quit
         
         key=cv2.waitKey(10) 
         
@@ -371,8 +377,8 @@ def main():
         cv2.imshow("Capture Screen",cap_img)
                     
 ##
-## Execute the Pre-Processing of the Landmarks + Normalization. 
-## Concert them into a single dimention
+## Execute the Pre-Processing of the Landmarks + Normalization & Scaling. 
+## and Flatten the vectors to a single dimention
 ##
 
 def pre_process_landmark(lm_x,lm_y):
@@ -414,7 +420,7 @@ def write_csv(label,landmark_list_vector):
                 
 
 ##
-## Build Auxiliary Response Screen            
+## Response Screen building           
 ##
         
 def build_resp_screen(rsp_img,w_size,h_size,x,y,resp_zoom,mode,training_label,training_class):
@@ -534,8 +540,8 @@ def build_resp_screen(rsp_img,w_size,h_size,x,y,resp_zoom,mode,training_label,tr
     cv2.imshow("Response Screen",rsp_img)
 
 ##
-## Build Auxiliary Movement Analysis Screen
-## Considers the N past movements defined at Main Loop function setup
+## Movement Analysis Screen building
+## Considers the N past movements defined at Main Loop function setup (see variable buffer_size)
 ##
 
 def analyze_movements(rsp_img,w_size,h_size,buffer_rec,buffer_index,resp_zoom):
@@ -644,7 +650,7 @@ def analyze_movements(rsp_img,w_size,h_size,buffer_rec,buffer_index,resp_zoom):
         cv2.imshow("Analyer Response",cv2.flip(rsp_img, 1))
 
 ##
-## Main Function 
+## Main Function Call (execution starts here!:)
 ##
         
 if __name__ == '__main__':
