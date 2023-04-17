@@ -23,8 +23,8 @@
 ## - Implement historcal movement analysis (Formula: n - (3 x Frame Rate) -> those represent 3 secs)
 ##
 ## References: 
-## ASL Hand Signs Reference: https://www.youtube.com/watch?v=cGavOVNDj1s
-## 
+## ASL Hand Signs Letters Reference: https://www.youtube.com/watch?v=cGavOVNDj1s
+## ASL Hand Signs Numbers Reference: https://www.youtube.com/watch?v=cJ6UFIP-Vt0
 ## 
 ################################################################################################################################################
 
