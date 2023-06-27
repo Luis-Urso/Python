@@ -58,7 +58,7 @@ app_path=get_script_path()
 class predict_label(object):
     def __init__(
         self,
-        model_path=app_path+'\\model\\training_classifier.tflite',
+        model_path=app_path+'/model/training_classifier.tflite',
         num_threads=1
     ):
         self.interpreter = tf.lite.Interpreter(model_path=model_path,
@@ -93,7 +93,7 @@ class predict_label(object):
 ## 
 
     
-with open(app_path+'\\model\\labels.csv',
+with open(app_path+'/model/labels.csv',
 			encoding='utf-8-sig') as f_labels:
 	labels_class = csv.reader(f_labels)
 	labels_class = [
@@ -132,14 +132,14 @@ def main():
 
     # Moviment Analysis Threshold Variables - Filter 1 - Average Method
 
-    th_x = 4
-    th_y = 4
+    th_x = 2
+    th_y = 2
     th_z = 4 # reserved for future usage
 
     # Moviment Analysis Threshold Variables - Filter 2 - Pearson Correlation
 
-    th_corr_x = 0.98
-    th_corr_y = 0.98
+    th_corr_x = 0.95
+    th_corr_y = 0.95
     th_corr_z = 0.98 # reserved for future usage
     
     # Variables to calculate Frame Rate
@@ -165,8 +165,8 @@ def main():
 
     # Weight Movement Vector definitions (for Weighted Average Filter Usage)
 
-    w_mov_avg_x = [1,1,20,20,1000,1,20,20,1000,1,1,1,15,1,1,1,15,1,1,1,15] 
-    w_mov_avg_y = [1,1,20,20,1000,1,20,20,1000,1,1,1,15,1,1,1,15,1,1,1,15]
+    w_mov_avg_x = [1,1,20,20,500,1,20,20,500,1,1,1,15,1,1,1,15,1,1,1,15] 
+    w_mov_avg_y = [1,1,20,20,500,1,20,20,500,1,1,1,15,1,1,1,15,1,1,1,15]
     
     # Recording Buffer Matrix and Definitions
     # Matrix Order: buffer_rec = [buffer_Size,21,3] which: Buffer_Size is defined in the bariable below, 21 is the Landmarks, 3 for XYZ
