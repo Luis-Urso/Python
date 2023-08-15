@@ -3,7 +3,6 @@
 ## SIGN LANGUAGE INTERPRETER (SLI)
 ## Version 11 - 09-APR-2023
 ## By Luis A. Urso
-## LUCA2.AI (R) 
 ##
 ## Version Improvements/Corrections (last 3 versions):
 ## 
@@ -138,8 +137,8 @@ def main():
 
     # Moviment Analysis Threshold Variables - Filter 2 - Pearson Correlation
 
-    th_corr_x = 0.95
-    th_corr_y = 0.95
+    th_corr_x = 0.985
+    th_corr_y = 0.985
     th_corr_z = 0.98 # reserved for future usage
     
     # Variables to calculate Frame Rate
