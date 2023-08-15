@@ -3,7 +3,7 @@
 # by Luis A. Urso                                                                                               #
 # Updated by: 15-APR-2023                                                                                       #
 #################################################################################################################
-<h1> teste </h1>
+
 Overview: This solution leverages MediaPipe Hands pipeline to het the 21 hands landmarks those will be used 
           as features to be introduced into a Recurring Neural Network (RNN).
           It was developed in the context of creating a paper for USP-ESALQ MBA course and to be avalable for
