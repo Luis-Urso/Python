@@ -53,7 +53,7 @@ app_path=get_script_path()
 class predict_label(object):
     def __init__(
         self,
-        model_path=app_path+'\\model\\training_classifier.tflite',
+        model_path=app_path+'/model/training_classifier.tflite',
         num_threads=1,
     ):
         self.interpreter = tf.lite.Interpreter(model_path=model_path,
@@ -88,7 +88,7 @@ class predict_label(object):
 ## 
 
     
-with open(app_path+'\\model\\labels.csv',
+with open(app_path+'/model/labels.csv',
 			encoding='utf-8-sig') as f_labels:
 	labels_class = csv.reader(f_labels)
 	labels_class = [
