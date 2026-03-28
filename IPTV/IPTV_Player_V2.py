@@ -9,9 +9,9 @@ Requirements:
     pip install opencv-python numpy pyaudio requests screeninfo
 
 Usage:
-    python corporate_tv_player.py --server localhost --stream test
-    python corporate_tv_player.py --server 192.168.1.100 --stream corporate-tv --fullscreen
-    python corporate_tv_player.py --resolution 1920x1080 --server localhost --stream test
+    python IPTV_Player_V2.py --server localhost --stream test
+    python IPTV_Player_V2.py --server 192.168.1.100 --stream corporate-tv --fullscreen
+    python IPTV_Player_V2.py --resolution 1920x1080 --server localhost --stream test
 """
 
 import sys
