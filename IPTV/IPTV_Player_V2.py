@@ -4,6 +4,8 @@ Corporate TV Player for MediaMTX (OpenCV Version)
 ==================================================
 A reliable, full-screen video player for corporate displays.
 Connects to MediaMTX server and plays streams with audio using OpenCV.
+Author: Luis A. Urso
+Version 2.0 - Mar 26th, 2026
 
 Requirements:
     pip install opencv-python numpy pyaudio requests screeninfo
